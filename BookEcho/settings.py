@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
 
+    'account',
+    'request_management',
+    'podcast_management',
 
 ]
 
@@ -77,7 +80,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'BookEcho.wsgi.application'
-
+# AUTH_USER_MODEL = 'users.User'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -89,6 +92,7 @@ DATABASES = {
     }
 }
 
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
