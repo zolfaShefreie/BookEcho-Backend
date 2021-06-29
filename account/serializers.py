@@ -1,6 +1,8 @@
 from rest_framework import serializers
 import django.contrib.auth.password_validation as validators
 from django.contrib.auth.models import User as DjangoUser
+from rest_framework.fields import empty
+from django.contrib.auth import authenticate, login
 
 from . import models
 from utils.utils import ChoiceField
@@ -35,5 +37,30 @@ class SignUpSerializer(serializers.ModelSerializer):
                 pass
         validators.validate_password(password=value, user=user)
         return value
+
+
+class LoginUserSerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True, required=True)
+    username_email = serializers.CharField(max_length=11, write_only=True, required=True)
+
+    def __init__(self, instance=None, data=empty, **kwargs):
+        super().__init__(instance, data, **kwargs)
+        self.user = None
+
+    def validate(self, attrs):
+        username_email = attrs.pop('username_email')
+        if '@' in username_email:
+            attrs['email'] = username_email
+        else:
+            attrs['username'] = username_email
+        self.user = authenticate(self.context['request'], **attrs)
+        return attrs
+
+    def save(self, **kwargs):
+        login(self.context['request'], self.user)
+
+    # def to_representation(self, instance):
+    #     ser = UserSerializer(instance=self.user)
+    #     return ser.data
 
 
