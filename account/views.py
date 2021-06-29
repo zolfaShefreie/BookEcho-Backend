@@ -24,24 +24,31 @@ class SignUpUserView(CreateAPIView):
         return self.create(request, *args, **kwargs)
 
 
-class LoginUserView(APIView):
-    serializer_class = serializers.LoginUserSerializer
-    permission_classes = (AllowAny, )
+class UserViewSet(ModelViewSet):
+    serializer_class = serializers.UserSerializer
+    http_method_names = ['get', 'patch', 'delete']
+    queryset = models.User.objects.all()
 
-    def get_serializer_context(self):
-        return {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self
-        }
 
-    def get_serializer(self, *args, **kwargs):
-        serializer_class = self.serializer_class
-        kwargs['context'] = self.get_serializer_context()
-        return serializer_class(*args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(data=serializer.data, status=status.HTTP_200_OK)
+# class LoginUserView(APIView):
+#     serializer_class = serializers.LoginUserSerializer
+#     permission_classes = (AllowAny, )
+#
+#     def get_serializer_context(self):
+#         return {
+#             'request': self.request,
+#             'format': self.format_kwarg,
+#             'view': self
+#         }
+#
+#     def get_serializer(self, *args, **kwargs):
+#         serializer_class = self.serializer_class
+#         kwargs['context'] = self.get_serializer_context()
+#         return serializer_class(*args, **kwargs)
+#
+#     def post(self, request, *args, **kwargs):
+#         serializer = self.get_serializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(data=serializer.data, status=status.HTTP_200_OK)
