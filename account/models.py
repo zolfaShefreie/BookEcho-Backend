@@ -12,12 +12,9 @@ class Choices:
 
 
 class User(AbstractUser):
-    username = None
-    email = models.EmailField(null=False, blank=False, unique=True)
+    email = models.EmailField(null=False, blank=False)
     user_type = models.CharField(max_length=1, choices=Choices.UserType.choices(), null=False)
     avatar = models.ImageField(upload_to='avatar', null=True)
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = []
 
 
 class ProducerInfo(models.Model):
