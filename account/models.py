@@ -12,15 +12,17 @@ class Choices:
 
 
 class User(AbstractUser):
-    email = models.EmailField(null=False)
-    user_type = models.CharField(max_length=True, choices=Choices.UserType.choices(), null=False)
+    username = None
+    email = models.EmailField(null=False, blank=False, unique=True)
+    user_type = models.CharField(max_length=1, choices=Choices.UserType.choices(), null=False)
     avatar = models.ImageField(upload_to='avatar', null=True)
     USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
 
 
 class ProducerInfo(models.Model):
     voice_sample = models.FileField(upload_to="voice_sample")
     score = models.PositiveIntegerField(default=0)
-    podcast_producer = models.OneToOneField(User, on_delete=models.CASCADE)
+    podcast_producer = models.OneToOneField(User, on_delete=models.CASCADE, related_name="info")
 
 
