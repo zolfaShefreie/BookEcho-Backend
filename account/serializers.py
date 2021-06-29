@@ -8,6 +8,23 @@ from . import models
 from utils.utils import ChoiceField
 
 
+class InfoSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.ProducerInfo
+        fields = "__all__"
+
+
+class UserSerializer(serializers.ModelSerializer):
+    user_type = ChoiceField(choices=models.Choices.UserType.choices(), read_only=True)
+    producer_info = InfoSerializer(read_only=True, source='info')
+
+    class Meta:
+        model = models.User
+        fields = ('id', 'username', "first_name", "last_name", "email", "is_superuser",
+                  "user_type", "date_joined", "producer_info")
+
+
 class SignUpSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(required=True)
     last_name = serializers.CharField(required=True)
@@ -38,6 +55,11 @@ class SignUpSerializer(serializers.ModelSerializer):
         validators.validate_password(password=value, user=user)
         return value
 
+    def save(self, **kwargs):
+        user = super().save(**kwargs)
+        login(self.context['request'], user)
+        return user
+
 
 class LoginUserSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, required=True)
@@ -46,6 +68,10 @@ class LoginUserSerializer(serializers.Serializer):
     def __init__(self, instance=None, data=empty, **kwargs):
         super().__init__(instance, data, **kwargs)
         self.user = None
+
+    def to_internal_value(self, data):
+        models.User.objects.filter(user_type='p', info=None).delete()
+        return super().to_internal_value(data)
 
     def validate(self, attrs):
         username_email = attrs.pop('username_email')
@@ -58,9 +84,3 @@ class LoginUserSerializer(serializers.Serializer):
 
     def save(self, **kwargs):
         login(self.context['request'], self.user)
-
-    # def to_representation(self, instance):
-    #     ser = UserSerializer(instance=self.user)
-    #     return ser.data
-
-
