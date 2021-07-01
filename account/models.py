@@ -19,7 +19,6 @@ class User(AbstractUser):
 
 class ProducerInfo(models.Model):
     voice_sample = models.FileField(upload_to="voice_sample")
-    score = models.PositiveIntegerField(default=0)
     podcast_producer = models.OneToOneField(User, on_delete=models.CASCADE, related_name="info")
 
 
