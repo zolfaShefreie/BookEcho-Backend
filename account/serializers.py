@@ -7,13 +7,29 @@ from rest_auth.models import TokenModel
 
 from . import models
 from utils.utils import ChoiceField
+from utils.validators import FileValidator, VALID_AUDIO
 
 
 class InfoSerializer(serializers.ModelSerializer):
+    voice_sample = serializers.FileField(validators=[FileValidator(max_size=5242880, allowed_content_type=VALID_AUDIO)],
+                                         required=True, allow_null=False)
+    score = serializers.SerializerMethodField(method_name="get_score")
 
     class Meta:
         model = models.ProducerInfo
         fields = "__all__"
+        extra_kwargs = {'podcast_producer': {'read_only': True}}
+
+    def save(self, **kwargs):
+        podcast_producer = None
+        if self.instance:
+            podcast_producer = self.instance.podcast_producer
+        podcast_producer = self.context.get('podcast_producer', podcast_producer)
+        self.validated_data['podcast_producer'] = podcast_producer
+        return super().save(**kwargs)
+
+    def get_score(self, obj):
+        return 100
 
 
 class UserSerializer(serializers.ModelSerializer):
