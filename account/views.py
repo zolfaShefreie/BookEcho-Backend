@@ -3,6 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
 from django.db import transaction
 from rest_auth import views
@@ -13,6 +14,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from . import serializers
 from . import models
+from utils.utils import CustomPageNumberPage
+from utils.views import RelatedObjCreateView
 
 
 class SignUpUserView(CreateAPIView):
@@ -28,6 +31,41 @@ class UserViewSet(ModelViewSet):
     serializer_class = serializers.UserSerializer
     http_method_names = ['get', 'patch', 'delete']
     queryset = models.User.objects.all()
+
+
+class UserPrivateView(APIView):
+    serializer_class = serializers.UserSerializer
+    permission_classes = (IsAuthenticated, )
+
+    def get_object(self):
+        return self.request.user
+
+    def get(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data)
+
+
+class UserProfileView(RetrieveAPIView):
+    serializer_class = serializers.UserSerializer
+    permission_classes = (IsAuthenticated,)
+    queryset = models.User.objects.filter(user_type='p')
+    lookup_field = 'username'
+    lookup_url_kwarg = 'username'
+
+
+class ProducerList(ListAPIView):
+    serializer_class = serializers.UserSerializer
+    permission_classes = (IsAuthenticated,)
+    queryset = models.User.objects.filter(user_type='p')
+    paginator = CustomPageNumberPage()
+
+
+class AddInfo(RelatedObjCreateView):
+    related_obj_name = 'podcast_producer'
+    queryset = models.User.objects.filter(user_type='p')
+    serializer_class = serializers.InfoSerializer
+
 
 
 
