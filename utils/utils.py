@@ -1,5 +1,6 @@
 import enum
 from rest_framework import serializers
+from rest_framework.pagination import PageNumberPagination
 
 
 class Enum(enum.Enum):
@@ -27,3 +28,9 @@ class ChoiceField(serializers.ChoiceField):
             if val == data:
                 return key
         self.fail('invalid_choice', input=data)
+
+
+class CustomPageNumberPage(PageNumberPagination):
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+    page_size = 20
