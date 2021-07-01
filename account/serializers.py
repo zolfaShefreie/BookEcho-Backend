@@ -21,11 +21,7 @@ class InfoSerializer(serializers.ModelSerializer):
         extra_kwargs = {'podcast_producer': {'read_only': True}}
 
     def save(self, **kwargs):
-        podcast_producer = None
-        if self.instance:
-            podcast_producer = self.instance.podcast_producer
-        podcast_producer = self.context.get('podcast_producer', podcast_producer)
-        self.validated_data['podcast_producer'] = podcast_producer
+        self.validated_data['podcast_producer'] = self.context.get('user', None)
         return super().save(**kwargs)
 
     def get_score(self, obj):
@@ -40,6 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = models.User
         fields = ('id', 'username', "first_name", "last_name", "email", "is_superuser",
                   "user_type", "date_joined", "producer_info", "avatar")
+        read_only_fields = ('id', 'date_joined', "producer_info", "user_type", )
 
 
 class SignUpSerializer(serializers.ModelSerializer):

@@ -1,4 +1,4 @@
-from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView, UpdateAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -16,6 +16,7 @@ from . import serializers
 from . import models
 from utils.utils import CustomPageNumberPage
 from utils.views import RelatedObjCreateView
+from . import permissions
 
 
 class SignUpUserView(CreateAPIView):
@@ -27,10 +28,12 @@ class SignUpUserView(CreateAPIView):
         return self.create(request, *args, **kwargs)
 
 
-class UserViewSet(ModelViewSet):
+class UserUpdateView(UpdateAPIView):
     serializer_class = serializers.UserSerializer
-    http_method_names = ['get', 'patch', 'delete']
-    queryset = models.User.objects.all()
+    permission_classes = (IsAuthenticated, )
+
+    def get_object(self):
+        return self.request.user
 
 
 class UserPrivateView(APIView):
@@ -61,11 +64,14 @@ class ProducerList(ListAPIView):
     paginator = CustomPageNumberPage()
 
 
-class AddInfo(RelatedObjCreateView):
-    related_obj_name = 'podcast_producer'
-    queryset = models.User.objects.filter(user_type='p')
+class AddChangeInfo(CreateAPIView):
+    permission_classes = (IsAuthenticated, permissions.IsProducer, )
     serializer_class = serializers.InfoSerializer
 
+    def post(self, request, *args, **kwargs):
+        models.ProducerInfo.objects.filter(podcast_producer=request.user).delete()
+        serializer = self.serializer_class(request.data, context={'user': request.user})
+        return Response(serializer.data)
 
 
 
