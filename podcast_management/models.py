@@ -8,4 +8,5 @@ class Podcast(models.Model):
     description = models.TextField(blank=True)
     is_private = models.BooleanField(default=True)
     is_active = models.BooleanField(default=False)
+    score = models.PositiveSmallIntegerField(null=True)
 
