@@ -9,7 +9,7 @@ from . import serializers
 from . import models
 from . import permissions
 from utils.utils import CustomPageNumberPage
-from utils.views import RelatedObjCreateView, UpdateWithPostMethodView
+from utils.views import RelatedObjCreateView, UpdateWithPostMethodView, RelatedObjListView
 from account.models import User
 from account import permissions as account_permissions
 
@@ -87,9 +87,21 @@ class RequestDeadLineRejectView(UpdateWithPostMethodView):
         return {'status': 'i'}
 
 
-class ApplicantRequestList(ListAPIView):
-    pass
+class ApplicantRequestList(RelatedObjListView):
+    related_obj_name = 'applicant'
+    permission_classes = (IsAuthenticated, )
+    queryset = models.Request.objects.all()
+    serializer_class = serializers.RequestSerializer
+
+    def get_object(self):
+        return self.request.user
 
 
-class ProducerRequestList:
-    pass
+class ProducerRequestList(RelatedObjListView):
+    related_obj_name = 'podcast_producer'
+    queryset = models.Request.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = serializers.RequestSerializer
+
+    def get_object(self):
+        return self.request.user
