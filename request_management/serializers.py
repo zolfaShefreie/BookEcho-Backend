@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils.timezone import now, datetime
 
 from . import models
 from utils.utils import ChoiceField
@@ -14,7 +15,7 @@ class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Request
         fields = "__all__"
-        read_only_fields = ('id', 'created_at', 'applicant', 'podcast_producer', 'status', )
+        read_only_fields = ('id', 'created_at', 'applicant', 'podcast_producer', 'status', 'deadline', )
 
 
 class RequestUpdateStatusSerializer(serializers.ModelSerializer):
@@ -23,4 +24,20 @@ class RequestUpdateStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Request
         fields = ('status', )
+
+
+class RequestAcceptByProducerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Request
+        fields = ('deadline', )
+
+    def validate_deadline(self, value):
+        if value <= datetime.date(now()):
+            raise serializers.ValidationError("deadline must be after today")
+        return value
+
+    def save(self, **kwargs):
+        self.instance.status = 'ac'
+        return super().save(**kwargs)
 
