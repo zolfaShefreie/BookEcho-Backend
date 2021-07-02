@@ -1,21 +1,12 @@
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView, UpdateAPIView
-from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from rest_framework import status
 from django.db import transaction
-from rest_auth import views
-from django.conf import settings
-from django.utils.timezone import now
-from rest_framework.generics import get_object_or_404
-from django_filters.rest_framework import DjangoFilterBackend
 
 from . import serializers
 from . import models
 from utils.utils import CustomPageNumberPage
-from utils.views import RelatedObjCreateView
 from . import permissions
 
 
@@ -65,9 +56,10 @@ class ProducerList(ListAPIView):
 
 
 class AddChangeInfo(CreateAPIView):
-    permission_classes = (IsAuthenticated, permissions.IsProducer, )
+    permission_classes = (IsAuthenticated, permissions.IsProducerPermission,)
     serializer_class = serializers.InfoSerializer
 
+    @transaction.atomic()
     def post(self, request, *args, **kwargs):
         models.ProducerInfo.objects.filter(podcast_producer=request.user).delete()
         serializer = self.serializer_class(request.data, context={'user': request.user})
