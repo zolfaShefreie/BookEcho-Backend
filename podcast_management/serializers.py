@@ -26,7 +26,7 @@ class PodcastUpdateReadOnlySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Podcast
         fields = "__all__"
-        read_only_fields = ('id', 'req', 'delivery_date', )
+        read_only_fields = ('id', 'req', 'delivery_date', 'score')
 
     def validate_is_active(self, value):
         if value and self.instance.file is None:
@@ -37,3 +37,11 @@ class PodcastUpdateReadOnlySerializer(serializers.ModelSerializer):
         if self.validated_data.get('is_active', None):
             self.validated_data['delivery_date'] = datetime.today()
         return super(PodcastUpdateReadOnlySerializer, self).save(**kwargs)
+
+
+class PodcastScoreSerializer(serializers.ModelSerializer):
+    score = serializers.IntegerField(max_value=10, min_value=0)
+
+    class Meta:
+        model = models.Podcast
+        fields = ('score', )

@@ -16,7 +16,7 @@ from utils.utils import CustomPageNumberPage
 from utils.views import RelatedObjCreateView, UpdateWithPostMethodView, RelatedObjListView
 from account.models import User
 from request_management.models import Request
-from request_management.permissions import ReqStatusChangeByProducerPermission
+from request_management.permissions import ReqStatusChangeByProducerPermission, ReqStatusChangeByApplicantPermission
 from account import permissions as account_permissions
 
 
@@ -54,6 +54,19 @@ class PodcastActiveView(UpdateWithPostMethodView):
         return {
             'is_active': True
         }
+
+    def get_object(self):
+        obj = super().get_object()
+        return obj.podcast
+
+
+class PodcastScoreView(UpdateWithPostMethodView):
+    serializer_class = serializers.PodcastScoreSerializer
+    permission_classes = (IsAuthenticated, ReqStatusChangeByApplicantPermission,
+                          permissions.IsPodcastActivePermission, )
+    queryset = Request.objects.filter(status='a').exclude(podcast=None)
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'pk'
 
     def get_object(self):
         obj = super().get_object()
