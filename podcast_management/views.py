@@ -10,7 +10,7 @@ from django.db import transaction
 
 from . import serializers
 from . import models
-# from . import permissions
+from . import permissions
 # from . import filters
 from utils.utils import CustomPageNumberPage
 from utils.views import RelatedObjCreateView, UpdateWithPostMethodView, RelatedObjListView
@@ -29,3 +29,13 @@ class PodcastCreateView(RelatedObjCreateView):
     lookup_url_kwarg = 'pk'
 
 
+class PodcastUpdateView(UpdateAPIView):
+    queryset = Request.objects.filter(status='a').exclude(podcast=None)
+    serializer_class = serializers.PodcastSerializer
+    permission_classes = (IsAuthenticated, ReqStatusChangeByProducerPermission, permissions.IsPodcastActivePermission, )
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'pk'
+
+    def get_object(self):
+        obj = super().get_object()
+        return obj.podcast
