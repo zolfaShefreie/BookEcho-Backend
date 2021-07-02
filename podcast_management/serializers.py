@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils.timezone import now, datetime
 
 from . import models
 from utils.validators import FileValidator, VALID_AUDIO
@@ -25,8 +26,14 @@ class PodcastUpdateReadOnlySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Podcast
         fields = "__all__"
-        read_only_fields = ('id', 'req', )
+        read_only_fields = ('id', 'req', 'delivery_date', )
 
     def validate_is_active(self, value):
         if value and self.instance.file is None:
             raise serializers.ValidationError("podcast must has file")
+        return value
+
+    def save(self, **kwargs):
+        if self.validated_data.get('is_active', None):
+            self.validated_data['delivery_date'] = datetime.today()
+        return super(PodcastUpdateReadOnlySerializer, self).save(**kwargs)
