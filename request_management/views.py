@@ -108,7 +108,7 @@ class ProducerRequestList(RelatedObjListView):
     permission_classes = (IsAuthenticated, )
     serializer_class = serializers.RequestSerializer
     paginator = CustomPageNumberPage()
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend, account_permissions.CompleteRegisterPermission, )
     filter_class = filters.RequestFilterSet
 
     def get_object(self):
