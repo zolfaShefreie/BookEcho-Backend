@@ -52,7 +52,7 @@ class UserPrivateView(APIView):
 class UserProfileView(RetrieveAPIView):
     serializer_class = serializers.UserSerializer
     permission_classes = (IsAuthenticated,)
-    queryset = models.User.objects.filter(user_type='p')
+    queryset = models.User.objects.filter(user_type='p').exclude(info=None)
     lookup_field = 'username'
     lookup_url_kwarg = 'username'
 
@@ -60,7 +60,7 @@ class UserProfileView(RetrieveAPIView):
 class ProducerList(ListAPIView):
     serializer_class = serializers.UserSerializer
     permission_classes = (IsAuthenticated,)
-    queryset = models.User.objects.filter(user_type='p')
+    queryset = models.User.objects.filter(user_type='p').exclude(info=None)
     paginator = CustomPageNumberPage()
 
 
