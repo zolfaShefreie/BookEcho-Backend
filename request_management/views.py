@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView, UpdateAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
@@ -8,6 +9,7 @@ from django.db import transaction
 from . import serializers
 from . import models
 from . import permissions
+from . import filters
 from utils.utils import CustomPageNumberPage
 from utils.views import RelatedObjCreateView, UpdateWithPostMethodView, RelatedObjListView
 from account.models import User
@@ -92,6 +94,9 @@ class ApplicantRequestList(RelatedObjListView):
     permission_classes = (IsAuthenticated, )
     queryset = models.Request.objects.all()
     serializer_class = serializers.RequestSerializer
+    paginator = CustomPageNumberPage()
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = filters.RequestFilterSet
 
     def get_object(self):
         return self.request.user
@@ -102,6 +107,9 @@ class ProducerRequestList(RelatedObjListView):
     queryset = models.Request.objects.all()
     permission_classes = (IsAuthenticated, )
     serializer_class = serializers.RequestSerializer
+    paginator = CustomPageNumberPage()
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = filters.RequestFilterSet
 
     def get_object(self):
         return self.request.user
