@@ -1,4 +1,6 @@
 import enum
+
+import django_filters
 from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination
 
@@ -28,6 +30,23 @@ class ChoiceField(serializers.ChoiceField):
             if val == data:
                 return key
         self.fail('invalid_choice', input=data)
+
+
+class ChoiceFilter(django_filters.ChoiceFilter):
+
+    def __init__(self, *args, **kwargs):
+        self.enum_choices = kwargs.pop("enum_choices", Enum({}))
+        choices = self.enum_choices.get_complete_choices()
+        kwargs["choices"] = choices
+        super().__init__(*args, **kwargs)
+
+    def filter(self, qs, value):
+        try:
+            value = self.enum_choices[value].value
+            return super(ChoiceFilter, self).filter(qs, value)
+        except:
+            return qs
+
 
 
 class CustomPageNumberPage(PageNumberPagination):
