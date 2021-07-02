@@ -9,7 +9,7 @@ from . import serializers
 from . import models
 from . import permissions
 from utils.utils import CustomPageNumberPage
-from utils.views import RelatedObjCreateView
+from utils.views import RelatedObjCreateView, UpdateWithPostMethodView
 from account.models import User
 from account import permissions as account_permissions
 
@@ -43,3 +43,21 @@ class RequestViewSet(ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
 
+
+class RequestAcceptByProducerView(UpdateWithPostMethodView):
+    queryset = models.Request.objects.filter(status='p')
+    permission_classes = (IsAuthenticated, permissions.ReqStatusChangeByProducerPermission, )
+    serializer_class = serializers.RequestAcceptByProducerSerializer
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'pk'
+
+
+class RequestRejectByProducerView(UpdateWithPostMethodView):
+    queryset = models.Request.objects.filter(status='p')
+    permission_classes = (IsAuthenticated, permissions.ReqStatusChangeByProducerPermission,)
+    serializer_class = serializers.RequestUpdateStatusSerializer
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'pk'
+
+    def get_data(self):
+        return {'status': 'r'}
