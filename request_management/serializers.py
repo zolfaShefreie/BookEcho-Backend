@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.utils.timezone import now, datetime
 
 from . import models
+from podcast_management.serializers import PodcastSerializer
 from utils.utils import ChoiceField
 from utils.validators import FileValidator
 
@@ -10,7 +11,7 @@ class RequestSerializer(serializers.ModelSerializer):
     status = ChoiceField(choices=models.Choices.RequestStatus.choices(), read_only=True)
     file = serializers.FileField(validators=[FileValidator(max_size=5242880, allowed_content_type=['application/pdf'])],
                                  required=True, allow_null=False)
-    # podcast serializer
+    podcast = PodcastSerializer()
 
     class Meta:
         model = models.Request
@@ -22,6 +23,12 @@ class RequestSerializer(serializers.ModelSerializer):
             request = self.context.get('request', None)
             self.validated_data['applicant'] = request.user
         return super().save(**kwargs)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if hasattr(instance, 'podcast') and not instance.podcast.is_active:
+            data['podcast'] = None
+        return data
 
 
 class RequestUpdateStatusSerializer(serializers.ModelSerializer):
