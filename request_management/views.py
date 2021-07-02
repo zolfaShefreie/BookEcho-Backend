@@ -46,7 +46,8 @@ class RequestViewSet(ModelViewSet):
 
 class RequestAcceptByProducerView(UpdateWithPostMethodView):
     queryset = models.Request.objects.filter(status='p')
-    permission_classes = (IsAuthenticated, permissions.ReqStatusChangeByProducerPermission, )
+    permission_classes = (IsAuthenticated, permissions.ReqStatusChangeByProducerPermission,
+                          account_permissions.CompleteRegisterPermission, )
     serializer_class = serializers.RequestAcceptByProducerSerializer
     lookup_field = 'pk'
     lookup_url_kwarg = 'pk'
@@ -54,7 +55,8 @@ class RequestAcceptByProducerView(UpdateWithPostMethodView):
 
 class RequestRejectByProducerView(UpdateWithPostMethodView):
     queryset = models.Request.objects.filter(status='p')
-    permission_classes = (IsAuthenticated, permissions.ReqStatusChangeByProducerPermission,)
+    permission_classes = (IsAuthenticated, permissions.ReqStatusChangeByProducerPermission,
+                          account_permissions.CompleteRegisterPermission, )
     serializer_class = serializers.RequestUpdateStatusSerializer
     lookup_field = 'pk'
     lookup_url_kwarg = 'pk'
@@ -83,3 +85,11 @@ class RequestDeadLineRejectView(UpdateWithPostMethodView):
 
     def get_data(self):
         return {'status': 'i'}
+
+
+class ApplicantRequestList(ListAPIView):
+    pass
+
+
+class ProducerRequestList:
+    pass

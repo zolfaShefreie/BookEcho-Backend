@@ -8,4 +8,4 @@ class IsProducerPermission(BasePermission):
 
 class CompleteRegisterPermission(BasePermission):
     def has_permission(self, request, view):
-        return request.user.user_type == 'p' and not hasattr(request.user, 'info')
+        return (request.user.user_type == 'p' and not hasattr(request.user, 'info')) or request.user.user_type == 'n'
