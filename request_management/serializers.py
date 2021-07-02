@@ -34,7 +34,7 @@ class RequestUpdateStatusSerializer(serializers.ModelSerializer):
 
 class RequestAcceptByProducerSerializer(serializers.ModelSerializer):
     deadline = serializers.DateField(required=True, allow_null=False)
-    
+
     class Meta:
         model = models.Request
         fields = ('deadline', )

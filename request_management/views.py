@@ -61,3 +61,25 @@ class RequestRejectByProducerView(UpdateWithPostMethodView):
 
     def get_data(self):
         return {'status': 'r'}
+
+
+class RequestDeadLineAcceptView(UpdateWithPostMethodView):
+    queryset = models.Request.objects.filter(status='ac')
+    permission_classes = (IsAuthenticated, permissions.ReqStatusChangeByApplicantPermission,)
+    serializer_class = serializers.RequestUpdateStatusSerializer
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'pk'
+
+    def get_data(self):
+        return {'status': 'a'}
+
+
+class RequestDeadLineRejectView(UpdateWithPostMethodView):
+    queryset = models.Request.objects.filter(status='ac')
+    permission_classes = (IsAuthenticated, permissions.ReqStatusChangeByApplicantPermission,)
+    serializer_class = serializers.RequestUpdateStatusSerializer
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'pk'
+
+    def get_data(self):
+        return {'status': 'i'}
