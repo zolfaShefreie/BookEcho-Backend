@@ -32,9 +32,28 @@ class PodcastCreateView(RelatedObjCreateView):
 class PodcastUpdateView(UpdateAPIView):
     queryset = Request.objects.filter(status='a').exclude(podcast=None)
     serializer_class = serializers.PodcastSerializer
-    permission_classes = (IsAuthenticated, ReqStatusChangeByProducerPermission, permissions.IsPodcastActivePermission, )
+    permission_classes = (IsAuthenticated, ReqStatusChangeByProducerPermission,
+                          permissions.IsPodcastInactivePermission,)
     lookup_field = 'pk'
     lookup_url_kwarg = 'pk'
+
+    def get_object(self):
+        obj = super().get_object()
+        return obj.podcast
+
+
+class PodcastActiveView(UpdateWithPostMethodView):
+    queryset = Request.objects.filter(status='a').exclude(podcast=None)
+    serializer_class = serializers.PodcastUpdateReadOnlySerializer
+    permission_classes = (IsAuthenticated, ReqStatusChangeByProducerPermission,
+                          permissions.IsPodcastInactivePermission,)
+    lookup_field = 'pk'
+    lookup_url_kwarg = 'pk'
+
+    def get_data(self):
+        return {
+            'is_active': True
+        }
 
     def get_object(self):
         obj = super().get_object()

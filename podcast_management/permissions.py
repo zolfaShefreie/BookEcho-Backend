@@ -1,7 +1,7 @@
 from rest_framework.permissions import BasePermission
 
 
-class IsPodcastActivePermission(BasePermission):
+class IsPodcastInactivePermission(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return not obj.podcast.is_active
