@@ -34,8 +34,8 @@ class ChoiceField(serializers.ChoiceField):
 
 class ChoiceFilter(django_filters.ChoiceFilter):
 
-    def __init__(self, *args, **kwargs):
-        self.enum_choices = kwargs.pop("enum_choices", Enum({}))
+    def __init__(self, enum_choices,  *args, **kwargs):
+        self.enum_choices = enum_choices
         choices = self.enum_choices.get_complete_choices()
         kwargs["choices"] = choices
         super().__init__(*args, **kwargs)
