@@ -1,4 +1,5 @@
 from rest_framework.generics import CreateAPIView, RetrieveAPIView, ListAPIView, UpdateAPIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -18,8 +19,27 @@ class RequestCreateView(RelatedObjCreateView):
     queryset = User.objects.filter(user_type='p').exclude(info=None)
     permission_classes = (IsAuthenticated, permissions.ProducerNotReqUserPermission,
                           account_permissions.CompleteRegisterPermission)
+    serializer_class = serializers.RequestSerializer
     lookup_field = 'pk'
     lookup_url_kwarg = 'pk'
 
+    @transaction.atomic()
+    def post(self, request, *args, **kwargs):
+        return super().post(self, request, *args, **kwargs)
 
+
+class RequestViewSet(ModelViewSet):
+    queryset = models.Request.objects.all()
+    http_method_names = ['get', 'patch', 'delete']
+    serializer_class = serializers.RequestSerializer
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            return [IsAuthenticated(), permissions.ReqRetrievePermission(), ]
+
+        return [IsAuthenticated(), permissions.ReqAccessDeleteUpdatePermission(), ]
+
+    @transaction.atomic()
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 

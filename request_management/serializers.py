@@ -17,6 +17,12 @@ class RequestSerializer(serializers.ModelSerializer):
         fields = "__all__"
         read_only_fields = ('id', 'created_at', 'applicant', 'podcast_producer', 'status', 'deadline', )
 
+    def save(self, **kwargs):
+        if not self.instance:
+            request = self.context.get('request', None)
+            self.validated_data['applicant'] = request.user
+        return super().save(**kwargs)
+
 
 class RequestUpdateStatusSerializer(serializers.ModelSerializer):
     status = ChoiceField(choices=models.Choices.RequestStatus.choices(), read_only=True)
