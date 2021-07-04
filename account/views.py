@@ -3,6 +3,9 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.db import transaction
+from rest_framework import status
+from rest_framework.filters import SearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 from . import serializers
 from . import models
@@ -51,6 +54,8 @@ class UserProfileView(RetrieveAPIView):
 class ProducerList(ListAPIView):
     serializer_class = serializers.UserSerializer
     permission_classes = (IsAuthenticated,)
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['username', 'first_name', 'last_name', ]
     queryset = models.User.objects.filter(user_type='p').exclude(info=None)
     paginator = CustomPageNumberPage()
 
@@ -61,9 +66,12 @@ class AddChangeInfo(CreateAPIView):
 
     @transaction.atomic()
     def post(self, request, *args, **kwargs):
-        models.ProducerInfo.objects.filter(podcast_producer=request.user).delete()
-        serializer = self.serializer_class(request.data, context={'user': request.user})
-        return Response(serializer.data)
+        serializer = self.get_serializer(data=request.data, context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 

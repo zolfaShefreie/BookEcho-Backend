@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_auth.utils import jwt_encode
 import django.contrib.auth.password_validation as validators
 from django.contrib.auth.models import User as DjangoUser
 from rest_framework.fields import empty
@@ -19,10 +20,15 @@ class InfoSerializer(serializers.ModelSerializer):
         model = models.ProducerInfo
         fields = "__all__"
         extra_kwargs = {'podcast_producer': {'read_only': True}}
+        
+    def to_internal_value(self, data):
+        models.ProducerInfo.objects.filter(podcast_producer=self.context.get('user', None)).delete()
+        return super().to_internal_value(data)
 
     def save(self, **kwargs):
         self.validated_data['podcast_producer'] = self.context.get('user', None)
-        return super().save(**kwargs)
+        instance = super().save(**kwargs)
+        return instance
 
     def get_score(self, obj):
         return 100
@@ -30,12 +36,12 @@ class InfoSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     user_type = ChoiceField(choices=models.Choices.UserType.choices(), read_only=True)
-    producer_info = InfoSerializer(read_only=True, source='info')
+    info = InfoSerializer(read_only=True)
 
     class Meta:
         model = models.User
         fields = ('id', 'username', "first_name", "last_name", "email", "is_superuser",
-                  "user_type", "date_joined", "producer_info", "avatar")
+                  "user_type", "date_joined", "info", "avatar")
         read_only_fields = ('id', 'date_joined', "producer_info", "user_type", )
 
 
@@ -48,7 +54,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.User
-        fields = ('id', 'user_name', 'first_name', 'last_name', 'email', 'password', 'user_type')
+        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'password', 'user_type')
 
     def to_internal_value(self, data):
         models.User.objects.filter(user_type='p', info=None).delete()
@@ -72,10 +78,19 @@ class SignUpSerializer(serializers.ModelSerializer):
     def save(self, **kwargs):
         user = super().save(**kwargs)
         login(self.context['request'], user)
+        self.token = jwt_encode(user)
+        return user
+
+    def create(self, validated_data):
+        user = super().create(validated_data)
+        password = validated_data['password']
+        user.set_password(password)
+        user.save()
         return user
 
     def to_representation(self, instance):
         data = UserSerializer(instance).data
+        data['token'] = self.token
         return data
 
 
