@@ -27,7 +27,7 @@ class RequestCreateView(RelatedObjCreateView):
 
     @transaction.atomic()
     def post(self, request, *args, **kwargs):
-        return super().post(self, request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
 
 class RequestViewSet(ModelViewSet):

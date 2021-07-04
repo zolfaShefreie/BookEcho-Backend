@@ -10,8 +10,8 @@ from utils.validators import FileValidator
 class RequestSerializer(serializers.ModelSerializer):
     status = ChoiceField(choices=models.Choices.RequestStatus.choices(), read_only=True)
     file = serializers.FileField(validators=[FileValidator(max_size=5242880, allowed_content_type=['application/pdf'])],
-                                 required=True, allow_null=False)
-    podcast = PodcastSerializer()
+                          required=True, allow_null=False)
+    podcast = PodcastSerializer(read_only=True)
 
     class Meta:
         model = models.Request
@@ -22,6 +22,7 @@ class RequestSerializer(serializers.ModelSerializer):
         if not self.instance:
             request = self.context.get('request', None)
             self.validated_data['applicant'] = request.user
+            self.validated_data['podcast_producer'] = self.context.get('podcast_producer')
         return super().save(**kwargs)
 
     def to_representation(self, instance):
