@@ -14,4 +14,5 @@ urlpatterns = [
     path('<str:username>/profile/', views.UserProfileView.as_view()),
     path('producers/', views.ProducerList.as_view()),
     path('info/', views.AddChangeInfo.as_view()),
+    path('info/retreive/', views.ProducerInfoRetrieveView.as_view()),
 ]

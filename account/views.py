@@ -43,6 +43,21 @@ class UserPrivateView(RetrieveAPIView):
         return Response(serializer.data)
 
 
+class ProducerInfoRetrieveView(RetrieveAPIView):
+    serializer_class = serializers.InfoSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return getattr(self.request.user, "info", None)
+
+    def get(self, request, *args, **kwargs):
+        if request.user.user_type == "n":
+            Response(status=status.HTTP_404_NOT_FOUND)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+
 class UserProfileView(RetrieveAPIView):
     serializer_class = serializers.UserSerializer
     permission_classes = (IsAuthenticated,)
