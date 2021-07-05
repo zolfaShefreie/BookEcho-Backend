@@ -20,7 +20,7 @@ class RelatedObjCreateView(CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class RelatedObjListView(CreateAPIView):
+class RelatedObjListView(ListAPIView):
     paginator = CustomPageNumberPage()
     related_obj_name = ''
     queryset_rel_obj = None
@@ -54,7 +54,7 @@ class RelatedObjListView(CreateAPIView):
         if isinstance(queryset, QuerySet):
             # Ensure queryset is re-evaluated on each request.
             obj = self.get_object()
-            queryset = queryset.filter({self.related_obj_name: obj}).order_by("-created_at")
+            queryset = queryset.filter(**{self.related_obj_name: obj}).order_by("-created_at")
         return queryset
 
 

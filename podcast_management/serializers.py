@@ -14,6 +14,10 @@ class PodcastSerializer(serializers.ModelSerializer):
         model = models.Podcast
         fields = "__all__"
         read_only_fields = ('id', 'delivery_date', 'req', 'is_private', 'is_active', 'score')
+    
+    def to_internal_value(self, data):
+        models.Podcast.objects.filter(req=self.context.get('req')).delete()
+        return super().to_internal_value(data)
 
     def save(self, **kwargs):
         if not self.instance:

@@ -30,7 +30,7 @@ class UserUpdateView(UpdateAPIView):
         return self.request.user
 
 
-class UserPrivateView(APIView):
+class UserPrivateView(RetrieveAPIView):
     serializer_class = serializers.UserSerializer
     permission_classes = (IsAuthenticated, )
 
@@ -39,7 +39,7 @@ class UserPrivateView(APIView):
 
     def get(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.serializer_class(instance)
+        serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
 

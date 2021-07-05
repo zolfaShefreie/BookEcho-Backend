@@ -37,12 +37,17 @@ class InfoSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     user_type = ChoiceField(choices=models.Choices.UserType.choices(), read_only=True)
     info = InfoSerializer(read_only=True)
+    avatar = serializers.ImageField(allow_null=True)
 
     class Meta:
         model = models.User
         fields = ('id', 'username', "first_name", "last_name", "email", "is_superuser",
                   "user_type", "date_joined", "info", "avatar")
         read_only_fields = ('id', 'date_joined', "producer_info", "user_type", )
+
+    # def to_internal_value(self, data):
+    #     print(self.context)
+    #     return super().save(*)
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -92,6 +97,13 @@ class SignUpSerializer(serializers.ModelSerializer):
         data = UserSerializer(instance).data
         data['token'] = self.token
         return data
+
+
+class UserSummery(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.User
+        fields = ('id', 'username', 'first_name', 'last_name')
 
 
 # class LoginUserSerializer(serializers.Serializer):

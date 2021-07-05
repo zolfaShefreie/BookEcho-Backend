@@ -15,7 +15,7 @@ class Choices:
 
 class Request(models.Model):
     file = models.FileField(upload_to='pdf')
-    book_title = models.CharField(max_length=100),
+    book_title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     pages = models.PositiveIntegerField()
     applicant = models.ForeignKey('account.User', on_delete=models.CASCADE, related_name='requests')

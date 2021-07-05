@@ -64,7 +64,7 @@ class RequestRejectByProducerView(UpdateWithPostMethodView):
     lookup_url_kwarg = 'pk'
 
     def get_data(self):
-        return {'status': 'r'}
+        return {'status': 'rejected'}
 
 
 class RequestDeadLineAcceptView(UpdateWithPostMethodView):
@@ -75,7 +75,7 @@ class RequestDeadLineAcceptView(UpdateWithPostMethodView):
     lookup_url_kwarg = 'pk'
 
     def get_data(self):
-        return {'status': 'a'}
+        return {'status': 'active'}
 
 
 class RequestDeadLineRejectView(UpdateWithPostMethodView):
@@ -86,7 +86,7 @@ class RequestDeadLineRejectView(UpdateWithPostMethodView):
     lookup_url_kwarg = 'pk'
 
     def get_data(self):
-        return {'status': 'i'}
+        return {'status': 'inactive'}
 
 
 class ApplicantRequestList(RelatedObjListView):
@@ -105,10 +105,10 @@ class ApplicantRequestList(RelatedObjListView):
 class ProducerRequestList(RelatedObjListView):
     related_obj_name = 'podcast_producer'
     queryset = models.Request.objects.all()
-    permission_classes = (IsAuthenticated, )
+    permission_classes = (IsAuthenticated, account_permissions.CompleteRegisterPermission)
     serializer_class = serializers.RequestSerializer
     paginator = CustomPageNumberPage()
-    filter_backends = (DjangoFilterBackend, account_permissions.CompleteRegisterPermission, )
+    filter_backends = (DjangoFilterBackend, )
     filter_class = filters.RequestFilterSet
 
     def get_object(self):
